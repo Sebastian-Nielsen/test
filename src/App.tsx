@@ -1,26 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useState} from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export const App = () => {
+    const [data, setData] = useState(null);
+
+    const worker = new SharedWorker(
+        new URL('./sharedWorker.js', import.meta.url)
+    );
+
+    worker.port.onmessage = ({data}) => {
+        console.log("data:", data)
+        setData(data)
+    };
+
+    return <>
+        <p>Data is: {JSON.stringify(data)}</p>
+        <button onClick={() => {
+            console.log("messaging sharedworker")
+            worker.port.postMessage({msg: "send me # of browserInstances"});
+        }}>
+            send message to shared-worker
+        </button>
+    </>;
 }
-
-export default App;
